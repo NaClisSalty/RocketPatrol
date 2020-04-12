@@ -1,7 +1,6 @@
 //rocket prefab
 class Rocket extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture, frame){
-        //
         super(scene, x, y, texture, frame);
         //add an object to an existing scece, display list and update list
         scene.add.existing(this);
@@ -28,8 +27,12 @@ class Rocket extends Phaser.GameObjects.Sprite {
         }
         //reset on miss
         if(this.y <=108){
-            this.isFiring = false;
-            this.y = 431;
+            this.reset();
         }
+    }
+    //reset the rocket to the ground
+    reset(){
+        this.isFiring = false;
+        this.y = 431;
     }
 }

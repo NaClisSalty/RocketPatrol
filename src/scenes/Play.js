@@ -8,6 +8,8 @@ class Play extends Phaser.Scene {
         this.load.image('rocket', './assets/rocket.png');
         this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('starfield', './assets/starfield.png');
+        this.load.spritesheet('explosion', './assets/explosion.png', 
+        {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
     }
 
     create() {
@@ -34,6 +36,13 @@ class Play extends Phaser.Scene {
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+
+        //animation configuration
+        this.anims.create({
+            key: 'explode',
+            frames: this.anims.generateFrameNumbers('explosion', {start: 0, end: 9, first: 0}),
+            frameRate: 30
+        });
     }
 
     update(){
@@ -47,6 +56,52 @@ class Play extends Phaser.Scene {
         this.ship01.update();
         this.ship02.update();
         this.ship03.update();
+
+        //update to check if rectangles are being hit
+        if(this.checkCollision(this.p1Rocket, this.ship03)){
+            //console.log('kaboom ship 03');
+            this.p1Rocket.reset();
+            //this.ship03.reset(); //do i still need this???
+            this.shipExplode(this.ship03);
+        }
+        if(this.checkCollision(this.p1Rocket, this.ship02)){
+            //console.log('kaboom ship 02');
+            this.p1Rocket.reset();
+            //this.ship02.reset(); //do i still need this???
+            this.shipExplode(this.ship02);
+        }
+        if(this.checkCollision(this.p1Rocket, this.ship01)){
+            //console.log('kaboom ship 01');
+            this.p1Rocket.reset();
+            //this.ship01.reset(); //do i still need this???
+            this.shipExplode(this.ship01);
+        }
     }
+
+    checkCollision(rocket, ship){
+        //simple AABB (Axis Alligned Bounding Boxes, ie: rectangle hit boxes)
+        if(rocket.x < ship.x + ship.width &&
+            rocket.x +rocket.width > ship.x &&
+            rocket.y < ship.y +ship.height &&
+            rocket.height +rocket.y > ship.y){
+                return true;
+            }else {
+                return false;
+            }
+    }
+
+    shipExplode(ship){
+        ship.alpha = 0;  //hides ship temporarilly
+        //creates an explosion where ship disapears
+        let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0,0);
+        boom.anims.play('explode');             //plays explodeing animation
+        boom.on('animationcomplete', () => {    //callback after animation is completed
+            ship.reset();                       //reset ship position
+            ship.alpha = 1;                     //make ship visable again
+            boom.destroy();                     //remove explosion sprite
+        });
+    }
+    
+
 
 }
